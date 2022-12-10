@@ -7,18 +7,21 @@ from terminaltables import SingleTable
 def get_a_vacancy_form_sj(super_job_secret_key, language):
     page = 0
     pages_number = 5
-    all_vacancies = []
+    vacancies_on_page = 100
+    profession_id = 48
+    all_vacancies = list()
     while page < pages_number:
         url = "https://api.superjob.ru/2.0/vacancies/"
         params = {
-            "count": 100, "keyword": language,
-            "catalogues": 48, "page": page, "town": "Москва"
+            "count": vacancies_on_page, "keyword": language,
+            "catalogues": profession_id, "page": page, "town": "Москва"
         }
         headers = {"X-Api-App-Id": super_job_secret_key}
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        if response.json()["objects"]:
-            all_vacancies.append(response.json())
+        description_vacancies = response.json()
+        if description_vacancies["objects"]:
+            all_vacancies.append(description_vacancies)
         page += 1
     return all_vacancies
 
@@ -26,34 +29,40 @@ def get_a_vacancy_form_sj(super_job_secret_key, language):
 def take_vacancies_from_hh(language):
     page = 0
     pages_number = 1
-    all_vacancies = []
+    area_id = 1
+    vacancies_on_page = 100
+    all_vacancies = list()
     while page < pages_number:
         url = "https://api.hh.ru/vacancies/"
         params = {
-            "text": language, "area": 1,
-            "page": page, "per_page": 100, "clusters": "true"
+            "text": language, "area": area_id,
+            "page": page, "per_page": vacancies_on_page, "clusters": "true"
         }
         response = requests.get(url, params=params)
         response.raise_for_status()
-        pages_number = response.json()["pages"]
-        all_vacancies.append(response.json())
+        description_vacancies = response.json()
+        pages_number = description_vacancies["pages"]
+        all_vacancies.append(description_vacancies)
         page += 1
     return all_vacancies
 
 
 def predict_salary_sj(vacancy):
-    if "rub" in vacancy["currency"]:
-        salary_from = vacancy["payment_from"]
-        salary_to = vacancy["payment_to"]
-        return predict_salary(salary_from, salary_to)
+    if "rub" not in vacancy["currency"]:
+        return
+    salary_from = vacancy["payment_from"]
+    salary_to = vacancy["payment_to"]
+    return predict_salary(salary_from, salary_to)
 
 
 def predict_salary_hh(vacancy):
-    if vacancy["salary"]:
-        if "RUR" in vacancy["salary"]["currency"]:
-            salary_from = vacancy["salary"]["from"]
-            salary_to = vacancy["salary"]["to"]
-            return predict_salary(salary_from, salary_to)
+    if not vacancy["salary"]:
+        return
+    if "RUR" not in vacancy["salary"]["currency"]:
+        return
+    salary_from = vacancy["salary"]["from"]
+    salary_to = vacancy["salary"]["to"]
+    return predict_salary(salary_from, salary_to)
 
 
 def predict_salary(salary_from, salary_to):
@@ -69,42 +78,28 @@ def predict_salary(salary_from, salary_to):
         return None
 
 
-def collect_information_about_vacancies(
-        vacancies_found, average_salary_from_all_vacancies,
-        vacancies_processed, language, general_information
-):
-    general_information[language] = {
-        "vacancies_found": vacancies_found,
-        "vacancies_processed": vacancies_processed,
-        "average_salary": int(
-            average_salary_from_all_vacancies / vacancies_processed
-        )
-    }
-    return general_information
-
-
-def preparing_information_for_the_table(general_information):
-    language_columns = list()
-    information_for_tables = list()
-    information_for_tables.append(
-        ["Язык программирования", "Вакансий найдено",
-         "Вакансий обработано", "Средняя зарплата"]
-    )
-    for language in general_information:
-        language_columns.append(language)
-        information_for_tables.append(
+def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
+    tabel_columns_names_and_rows_value = list()
+    columns_names = [
+        "Язык программирования", "Вакансий найдено",
+        "Вакансий обработано", "Средняя зарплата"
+    ]
+    tabel_columns_names_and_rows_value.append(columns_names)
+    for it_language in information_about_salaries:
+        tabel_columns_names_and_rows_value.append(
             [
-                language, general_information[language]["vacancies_found"],
-                general_information[language]["vacancies_processed"],
-                general_information[language]["average_salary"]
+                it_language,
+                information_about_salaries[it_language]["vacancies_found"],
+                information_about_salaries[it_language]["vacancies_processed"],
+                information_about_salaries[it_language]["average_salary"]
             ]
         )
-    return information_for_tables
+    return tabel_columns_names_and_rows_value
 
 
-def get_general_information_from_sj(
-        programming_languages, super_job_secret_key,vacancies_processed,
-        average_salary_from_all_vacancies, general_information
+def take_general_information_about_salaries_from_sj(
+        programming_languages, super_job_secret_key, vacancies_processed,
+        average_salary_from_all_vacancies, information_about_salaries_from_sj
 ):
     for language in programming_languages:
         vacancies_descriptions = get_a_vacancy_form_sj(
@@ -114,20 +109,26 @@ def get_general_information_from_sj(
         for vacancy_description in vacancies_descriptions:
             for vacancy in vacancy_description["objects"]:
                 average_salary = predict_salary_sj(vacancy)
-                if average_salary:
-                    vacancies_processed += 1
-                    average_salary_from_all_vacancies += int(average_salary)
-                    general_information = collect_information_about_vacancies(
-                        vacancies_found, average_salary_from_all_vacancies,
-                        vacancies_processed, language, general_information)
+                if not average_salary:
+                    continue
+                vacancies_processed += 1
+                average_salary_from_all_vacancies += int(average_salary)
+                information_about_salaries_from_sj[language] = {
+                    "vacancies_found": vacancies_found,
+                    "vacancies_processed": vacancies_processed,
+                    "average_salary": int(
+                            average_salary_from_all_vacancies /
+                            vacancies_processed
+                        )
+                }
         vacancies_processed = 0
 
-    return general_information
+    return information_about_salaries_from_sj
 
 
-def get_general_information_from_hh(
+def take_general_information_about_salaries_from_hh(
         programming_languages, vacancies_processed,
-        average_salary_from_all_vacancies, general_information
+        average_salary_from_all_vacancies, information_about_salaries_from_hh
 ):
     for language in programming_languages:
         vacancies_descriptions = take_vacancies_from_hh(language)
@@ -136,28 +137,31 @@ def get_general_information_from_hh(
         for vacancy_description in vacancies_descriptions:
             for vacancy in vacancy_description["items"]:
                 average_salary = predict_salary_hh(vacancy)
-                if average_salary:
-                    vacancies_processed += 1
-                    average_salary_from_all_vacancies += int(average_salary)
-                    general_information = collect_information_about_vacancies(
-                        vacancies_found, average_salary_from_all_vacancies,
-                        vacancies_processed, language, general_information
+                if not average_salary:
+                    continue
+                vacancies_processed += 1
+                average_salary_from_all_vacancies += int(average_salary)
+                information_about_salaries_from_hh[language] = {
+                    "vacancies_found": vacancies_found,
+                    "vacancies_processed": vacancies_processed,
+                    "average_salary": int(
+                        average_salary_from_all_vacancies /
+                        vacancies_processed
                     )
+                }
         vacancies_processed = 0
-    return general_information
+    return information_about_salaries_from_hh
 
 
-def print_general_table(general_information, title):
-    table = preparing_information_for_the_table(general_information)
-    draw_tabel = SingleTable(table)
-    draw_tabel.title = title
-    print(draw_tabel.table)
+def print_general_table(table, site_name):
+    tabel = SingleTable(table)
+    tabel.title = site_name
+    print(tabel.table)
 
 
 def main():
-    information_for_tables = list()
-    general_information_hh = dict()
-    general_information_sj = dict()
+    information_about_salaries_from_hh = dict()
+    information_about_salaries_from_sj = dict()
     average_salary_from_all_vacancies = 0
     vacancies_processed = 0
     load_dotenv()
@@ -166,31 +170,27 @@ def main():
         "Python", "JavaScript", "Ruby",
         "PHP", "C", "C++", "Java"
     ]
-    information_for_tables.append(
-        [
-            [
-            "HeadHunter Moscow",
-            get_general_information_from_hh(
+    information_about_salaries_from_hh = \
+        take_general_information_about_salaries_from_hh(
                 programming_languages, vacancies_processed,
-                average_salary_from_all_vacancies, general_information_hh
+                average_salary_from_all_vacancies,
+                information_about_salaries_from_hh
             )
-            ],
-            [
-            "SuperJob Moscow",
-            get_general_information_from_sj(
+    information_about_salaries_from_sj = \
+        take_general_information_about_salaries_from_sj(
                 programming_languages, super_job_secret_key,
                 vacancies_processed, average_salary_from_all_vacancies,
-                general_information_sj
+                information_about_salaries_from_sj
             )
-            ]
-        ]
-
-    )
-
-    for information_for_table in information_for_tables[0]:
-        title = information_for_table[0]
-        general_information = information_for_table[1]
-        print_general_table(general_information, title)
+    tabel_names_and_rows_values = {
+            "HeadHunter Moscow": information_about_salaries_from_hh,
+            "SuperJob Moscow": information_about_salaries_from_sj
+        }
+    for sites_names, data_about_salary in \
+            tabel_names_and_rows_values.items():
+        site_name = sites_names
+        table = build_columns_names_and_rows_value_for_tabel(data_about_salary)
+        print_general_table(table, site_name)
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ How it looks.
 1. Переходим на сайт [SuperJob.ru](https://api.superjob.ru/);
 2. Кликаем по вкладке ["Зарегистрировать приложение"](https://www.superjob.ru/auth/login/?returnUrl=https://api.superjob.ru/register/);
 3. Заполнить форму, можно писать от балды;[![imageup.ru](https://imageup.ru/img212/4096852/chrome_tzw5co8zwg.png)](https://imageup.ru/img212/4096852/chrome_tzw5co8zwg.png.html)
-4. После регистрации приложения, будет доступен секретный ключ.![img.png](img.png)
+4. После регистрации приложения, будет доступен секретный ключ.[![imageup.ru](https://imageup.ru/img68/4103417/chrome_riedduefyj.png)](https://imageup.ru/img68/4103417/chrome_riedduefyj.png.html)
 
 
 ## Как запустить скрипт
