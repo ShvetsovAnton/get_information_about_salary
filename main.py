@@ -97,7 +97,7 @@ def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
     return tabel_columns_names_and_rows_value
 
 
-def take_general_average_salaries_based_on_it_languages_from_sj(
+def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
         programming_languages, super_job_secret_key, vacancies_processed,
         average_salary_from_all_vacancies,
         average_salaries_based_on_it_languages_from_sj
@@ -179,7 +179,7 @@ def main():
                 average_salaries_based_on_it_languages_from_hh
             )
     average_salaries_based_on_it_languages_from_sj = \
-        take_general_average_salaries_based_on_it_languages_from_sj(
+        creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
                 programming_languages, super_job_secret_key,
                 vacancies_processed, average_salary_from_all_vacancies,
                 average_salaries_based_on_it_languages_from_sj
