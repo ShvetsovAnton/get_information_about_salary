@@ -4,7 +4,7 @@ import os
 from terminaltables import SingleTable
 
 
-def get_a_vacancy_form_sj(super_job_secret_key, language):
+def get_vacancy_form_sj(super_job_secret_key, language):
     page = 0
     pages_number = 5
     vacancies_on_page = 100
@@ -78,15 +78,15 @@ def predict_salary(salary_from, salary_to):
         return None
 
 
-def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
-    tabel_columns_names_and_rows_value = list()
+def build_columns_and_rows_for_tabel(information_about_salaries):
+    tabel_columns_and_rows = list()
     columns_names = [
         "Язык программирования", "Вакансий найдено",
         "Вакансий обработано", "Средняя зарплата"
     ]
-    tabel_columns_names_and_rows_value.append(columns_names)
+    tabel_columns_and_rows.append(columns_names)
     for it_language in information_about_salaries:
-        tabel_columns_names_and_rows_value.append(
+        tabel_columns_and_rows.append(
             [
                 it_language,
                 information_about_salaries[it_language]["vacancies_found"],
@@ -94,7 +94,7 @@ def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
                 information_about_salaries[it_language]["average_salary"]
             ]
         )
-    return tabel_columns_names_and_rows_value
+    return tabel_columns_and_rows
 
 
 def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
@@ -104,7 +104,7 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
     average_salary_from_all_vacancies = 0
     vacancies_processed = 0
     for language in programming_languages:
-        vacancies_descriptions = get_a_vacancy_form_sj(
+        vacancies_descriptions = get_vacancy_form_sj(
             super_job_secret_key, language
         )
         vacancies_found = vacancies_descriptions[0]["total"]
@@ -178,13 +178,13 @@ def main():
         creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
             programming_languages, super_job_secret_key
         )
-    tabel_names_and_rows_values = {
+    tabel_names_and_rows = {
         "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
         "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
     }
     for site_name, average_salary in \
-            tabel_names_and_rows_values.items():
-        table = build_columns_names_and_rows_value_for_tabel(average_salary)
+            tabel_names_and_rows.items():
+        table = build_columns_and_rows_for_tabel(average_salary)
         print_general_table(table, site_name)
 
 
