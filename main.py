@@ -97,9 +97,10 @@ def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
     return tabel_columns_names_and_rows_value
 
 
-def take_general_information_about_salaries_from_sj(
+def take_general_average_salaries_based_on_it_languages_from_sj(
         programming_languages, super_job_secret_key, vacancies_processed,
-        average_salary_from_all_vacancies, information_about_salaries_from_sj
+        average_salary_from_all_vacancies,
+        average_salaries_based_on_it_languages_from_sj
 ):
     for language in programming_languages:
         vacancies_descriptions = get_a_vacancy_form_sj(
@@ -113,7 +114,7 @@ def take_general_information_about_salaries_from_sj(
                     continue
                 vacancies_processed += 1
                 average_salary_from_all_vacancies += int(average_salary)
-                information_about_salaries_from_sj[language] = {
+                average_salaries_based_on_it_languages_from_sj[language] = {
                     "vacancies_found": vacancies_found,
                     "vacancies_processed": vacancies_processed,
                     "average_salary": int(
@@ -123,12 +124,13 @@ def take_general_information_about_salaries_from_sj(
                 }
         vacancies_processed = 0
 
-    return information_about_salaries_from_sj
+    return average_salaries_based_on_it_languages_from_sj
 
 
-def take_general_information_about_salaries_from_hh(
+def take_general_average_salaries_based_on_it_languages_from_hh(
         programming_languages, vacancies_processed,
-        average_salary_from_all_vacancies, information_about_salaries_from_hh
+        average_salary_from_all_vacancies,
+        average_salaries_based_on_it_languages_from_hh
 ):
     for language in programming_languages:
         vacancies_descriptions = take_vacancies_from_hh(language)
@@ -141,7 +143,7 @@ def take_general_information_about_salaries_from_hh(
                     continue
                 vacancies_processed += 1
                 average_salary_from_all_vacancies += int(average_salary)
-                information_about_salaries_from_hh[language] = {
+                average_salaries_based_on_it_languages_from_hh[language] = {
                     "vacancies_found": vacancies_found,
                     "vacancies_processed": vacancies_processed,
                     "average_salary": int(
@@ -150,7 +152,7 @@ def take_general_information_about_salaries_from_hh(
                     )
                 }
         vacancies_processed = 0
-    return information_about_salaries_from_hh
+    return average_salaries_based_on_it_languages_from_hh
 
 
 def print_general_table(table, site_name):
@@ -160,8 +162,8 @@ def print_general_table(table, site_name):
 
 
 def main():
-    information_about_salaries_from_hh = dict()
-    information_about_salaries_from_sj = dict()
+    average_salaries_based_on_it_languages_from_hh = dict()
+    average_salaries_based_on_it_languages_from_sj = dict()
     average_salary_from_all_vacancies = 0
     vacancies_processed = 0
     load_dotenv()
@@ -170,22 +172,22 @@ def main():
         "Python", "JavaScript", "Ruby",
         "PHP", "C", "C++", "Java"
     ]
-    information_about_salaries_from_hh = \
-        take_general_information_about_salaries_from_hh(
+    average_salaries_based_on_it_languages_from_hh = \
+        take_general_average_salaries_based_on_it_languages_from_hh(
                 programming_languages, vacancies_processed,
                 average_salary_from_all_vacancies,
-                information_about_salaries_from_hh
+                average_salaries_based_on_it_languages_from_hh
             )
-    information_about_salaries_from_sj = \
-        take_general_information_about_salaries_from_sj(
+    average_salaries_based_on_it_languages_from_sj = \
+        take_general_average_salaries_based_on_it_languages_from_sj(
                 programming_languages, super_job_secret_key,
                 vacancies_processed, average_salary_from_all_vacancies,
-                information_about_salaries_from_sj
+                average_salaries_based_on_it_languages_from_sj
             )
     tabel_names_and_rows_values = {
-            "HeadHunter Moscow": information_about_salaries_from_hh,
-            "SuperJob Moscow": information_about_salaries_from_sj
-        }
+        "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
+        "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
+    }
     for sites_names, data_about_salary in \
             tabel_names_and_rows_values.items():
         site_name = sites_names
