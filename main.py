@@ -188,10 +188,9 @@ def main():
         "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
         "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
     }
-    for sites_names, data_about_salary in \
+    for site_name, average_salary in \
             tabel_names_and_rows_values.items():
-        site_name = sites_names
-        table = build_columns_names_and_rows_value_for_tabel(data_about_salary)
+        table = build_columns_names_and_rows_value_for_tabel(average_salary)
         print_general_table(table, site_name)
 
 
