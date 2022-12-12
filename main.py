@@ -98,10 +98,11 @@ def build_columns_names_and_rows_value_for_tabel(information_about_salaries):
 
 
 def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
-        programming_languages, super_job_secret_key, vacancies_processed,
-        average_salary_from_all_vacancies,
-        average_salaries_based_on_it_languages_from_sj
+        programming_languages, super_job_secret_key
 ):
+    average_salaries_based_on_it_languages_from_sj = dict()
+    average_salary_from_all_vacancies = 0
+    vacancies_processed = 0
     for language in programming_languages:
         vacancies_descriptions = get_a_vacancy_form_sj(
             super_job_secret_key, language
@@ -128,10 +129,11 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
 
 
 def take_general_average_salaries_based_on_it_languages_from_hh(
-        programming_languages, vacancies_processed,
-        average_salary_from_all_vacancies,
-        average_salaries_based_on_it_languages_from_hh
+        programming_languages
 ):
+    average_salaries_based_on_it_languages_from_hh = dict()
+    average_salary_from_all_vacancies = 0
+    vacancies_processed = 0
     for language in programming_languages:
         vacancies_descriptions = take_vacancies_from_hh(language)
         vacancies_found = \
@@ -162,10 +164,6 @@ def print_general_table(table, site_name):
 
 
 def main():
-    average_salaries_based_on_it_languages_from_hh = dict()
-    average_salaries_based_on_it_languages_from_sj = dict()
-    average_salary_from_all_vacancies = 0
-    vacancies_processed = 0
     load_dotenv()
     super_job_secret_key = os.environ["SUPER_JOB_KEY"]
     programming_languages = [
@@ -174,16 +172,12 @@ def main():
     ]
     average_salaries_based_on_it_languages_from_hh = \
         take_general_average_salaries_based_on_it_languages_from_hh(
-                programming_languages, vacancies_processed,
-                average_salary_from_all_vacancies,
-                average_salaries_based_on_it_languages_from_hh
-            )
+            programming_languages
+        )
     average_salaries_based_on_it_languages_from_sj = \
         creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
-                programming_languages, super_job_secret_key,
-                vacancies_processed, average_salary_from_all_vacancies,
-                average_salaries_based_on_it_languages_from_sj
-            )
+            programming_languages, super_job_secret_key
+        )
     tabel_names_and_rows_values = {
         "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
         "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
