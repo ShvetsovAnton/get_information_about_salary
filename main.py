@@ -108,23 +108,30 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
             super_job_secret_key, language
         )
         vacancies_found = vacancies_descriptions[0]["total"]
-        for vacancy_description in vacancies_descriptions:
-            for vacancy in vacancy_description["objects"]:
-                average_salary = predict_salary_sj(vacancy)
-                if not average_salary:
-                    continue
-                vacancies_processed += 1
-                average_salary_from_all_vacancies += int(average_salary)
-                average_salaries_based_on_it_languages_from_sj[language] = {
-                    "vacancies_found": vacancies_found,
-                    "vacancies_processed": vacancies_processed,
-                    "average_salary": int(
-                            average_salary_from_all_vacancies /
-                            vacancies_processed
-                        )
-                }
-        vacancies_processed = 0
-
+        try:
+            for vacancy_description in vacancies_descriptions:
+                for vacancy in vacancy_description["objects"]:
+                    average_salary = predict_salary_sj(vacancy)
+                    if not average_salary:
+                        continue
+                    vacancies_processed += 1
+                    average_salary_from_all_vacancies += int(average_salary)
+                    average_salaries_based_on_it_languages_from_sj[language] =\
+                        {
+                            "vacancies_found": vacancies_found,
+                            "vacancies_processed": vacancies_processed,
+                            "average_salary": int(
+                                average_salary_from_all_vacancies
+                                / vacancies_processed
+                            )
+                        }
+            vacancies_processed = 0
+        except ZeroDivisionError:
+            average_salaries_based_on_it_languages_from_sj[language] = {
+                "vacancies_found": vacancies_found,
+                "vacancies_processed": "Нет данных",
+                "average_salary": "Нет данных"
+            }
     return average_salaries_based_on_it_languages_from_sj
 
 
@@ -138,22 +145,30 @@ def take_general_average_salaries_based_on_it_languages_from_hh(
         vacancies_descriptions = take_vacancies_from_hh(language)
         vacancies_found = \
             vacancies_descriptions[0]["clusters"][0]["items"][0]["count"]
-        for vacancy_description in vacancies_descriptions:
-            for vacancy in vacancy_description["items"]:
-                average_salary = predict_salary_hh(vacancy)
-                if not average_salary:
-                    continue
-                vacancies_processed += 1
-                average_salary_from_all_vacancies += int(average_salary)
-                average_salaries_based_on_it_languages_from_hh[language] = {
-                    "vacancies_found": vacancies_found,
-                    "vacancies_processed": vacancies_processed,
-                    "average_salary": int(
-                        average_salary_from_all_vacancies /
-                        vacancies_processed
-                    )
-                }
-        vacancies_processed = 0
+        try:
+            for vacancy_description in vacancies_descriptions:
+                for vacancy in vacancy_description["items"]:
+                    average_salary = predict_salary_hh(vacancy)
+                    if not average_salary:
+                        continue
+                    vacancies_processed += 1
+                    average_salary_from_all_vacancies += int(average_salary)
+                    average_salaries_based_on_it_languages_from_hh[language] =\
+                        {
+                            "vacancies_found": vacancies_found,
+                            "vacancies_processed": vacancies_processed,
+                            "average_salary": int(
+                                average_salary_from_all_vacancies /
+                                vacancies_processed
+                            )
+                    }
+            vacancies_processed = 0
+        except ZeroDivisionError:
+            average_salaries_based_on_it_languages_from_hh[language] = {
+                "vacancies_found": vacancies_found,
+                "vacancies_processed": "Нет данных",
+                "average_salary": "Нет данных"
+            }
     return average_salaries_based_on_it_languages_from_hh
 
 
@@ -178,6 +193,7 @@ def main():
         creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
             programming_languages, super_job_secret_key
         )
+    print(average_salaries_based_on_it_languages_from_sj)
     tabel_names_and_rows = {
         "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
         "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
