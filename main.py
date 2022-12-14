@@ -193,7 +193,6 @@ def main():
         creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
             programming_languages, super_job_secret_key
         )
-    print(average_salaries_based_on_it_languages_from_sj)
     tabel_names_and_rows = {
         "HeadHunter Moscow": average_salaries_based_on_it_languages_from_hh,
         "SuperJob Moscow": average_salaries_based_on_it_languages_from_sj
