@@ -97,7 +97,7 @@ def build_columns_and_rows_for_tabel(information_about_salaries):
     return tabel_columns_and_rows
 
 
-def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
+def get_vacancies_statistics_sj(
         programming_languages, super_job_secret_key
 ):
     average_salaries_based_on_it_languages_from_sj = dict()
@@ -136,7 +136,7 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
     return average_salaries_based_on_it_languages_from_sj
 
 
-def take_general_average_salaries_based_on_it_languages_from_hh(
+def get_vacancies_statistics_hh(
         programming_languages
 ):
     average_salaries_based_on_it_languages_from_hh = dict()
@@ -188,11 +188,11 @@ def main():
         "PHP", "C", "C++", "Java"
     ]
     average_salaries_based_on_it_languages_from_hh = \
-        take_general_average_salaries_based_on_it_languages_from_hh(
+        get_vacancies_statistics_hh(
             programming_languages
         )
     average_salaries_based_on_it_languages_from_sj = \
-        creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
+        get_vacancies_statistics_sj(
             programming_languages, super_job_secret_key
         )
     tabel_names_and_rows = {
