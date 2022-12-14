@@ -108,14 +108,14 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
             super_job_secret_key, language
         )
         vacancies_found = vacancies_descriptions[0]["total"]
-        try:
-            for vacancy_description in vacancies_descriptions:
-                for vacancy in vacancy_description["objects"]:
-                    average_salary = predict_salary_sj(vacancy)
-                    if not average_salary:
-                        continue
-                    vacancies_processed += 1
-                    average_salary_from_all_vacancies += int(average_salary)
+        for vacancy_description in vacancies_descriptions:
+            for vacancy in vacancy_description["objects"]:
+                average_salary = predict_salary_sj(vacancy)
+                if not average_salary:
+                    continue
+                vacancies_processed += 1
+                average_salary_from_all_vacancies += int(average_salary)
+                try:
                     average_salaries_based_on_it_languages_from_sj[language] =\
                         {
                             "vacancies_found": vacancies_found,
@@ -125,13 +125,14 @@ def creating_dictionary_with_average_salary_based_on_vacancy_from_sj(
                                 / vacancies_processed
                             )
                         }
-            vacancies_processed = 0
-        except ZeroDivisionError:
-            average_salaries_based_on_it_languages_from_sj[language] = {
-                "vacancies_found": vacancies_found,
-                "vacancies_processed": "Нет данных",
-                "average_salary": "Нет данных"
-            }
+                except ZeroDivisionError:
+                    average_salaries_based_on_it_languages_from_sj[language] =\
+                        {
+                            "vacancies_found": vacancies_found,
+                            "vacancies_processed": "Нет данных",
+                            "average_salary": "Нет данных"
+                        }
+        vacancies_processed = 0
     return average_salaries_based_on_it_languages_from_sj
 
 
@@ -145,14 +146,14 @@ def take_general_average_salaries_based_on_it_languages_from_hh(
         vacancies_descriptions = take_vacancies_from_hh(language)
         vacancies_found = \
             vacancies_descriptions[0]["clusters"][0]["items"][0]["count"]
-        try:
-            for vacancy_description in vacancies_descriptions:
-                for vacancy in vacancy_description["items"]:
-                    average_salary = predict_salary_hh(vacancy)
-                    if not average_salary:
-                        continue
-                    vacancies_processed += 1
-                    average_salary_from_all_vacancies += int(average_salary)
+        for vacancy_description in vacancies_descriptions:
+            for vacancy in vacancy_description["items"]:
+                average_salary = predict_salary_hh(vacancy)
+                if not average_salary:
+                    continue
+                vacancies_processed += 1
+                average_salary_from_all_vacancies += int(average_salary)
+                try:
                     average_salaries_based_on_it_languages_from_hh[language] =\
                         {
                             "vacancies_found": vacancies_found,
@@ -161,14 +162,15 @@ def take_general_average_salaries_based_on_it_languages_from_hh(
                                 average_salary_from_all_vacancies /
                                 vacancies_processed
                             )
-                    }
-            vacancies_processed = 0
-        except ZeroDivisionError:
-            average_salaries_based_on_it_languages_from_hh[language] = {
-                "vacancies_found": vacancies_found,
-                "vacancies_processed": "Нет данных",
-                "average_salary": "Нет данных"
-            }
+                        }
+                except ZeroDivisionError:
+                    average_salaries_based_on_it_languages_from_hh[language] =\
+                        {
+                            "vacancies_found": vacancies_found,
+                            "vacancies_processed": "Нет данных",
+                            "average_salary": "Нет данных"
+                        }
+        vacancies_processed = 0
     return average_salaries_based_on_it_languages_from_hh
 
 
