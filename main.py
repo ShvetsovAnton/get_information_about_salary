@@ -4,7 +4,7 @@ import os
 from terminaltables import SingleTable
 
 
-def get_vacancy_form_sj(super_job_secret_key, language):
+def get_vacancies_form_sj(super_job_secret_key, language):
     page = 0
     pages_number = 5
     vacancies_on_page = 100
@@ -104,7 +104,7 @@ def get_vacancies_statistics_sj(
     average_salary_from_all_vacancies = 0
     vacancies_processed = 0
     for language in programming_languages:
-        vacancies_descriptions = get_vacancy_form_sj(
+        vacancies_descriptions = get_vacancies_form_sj(
             super_job_secret_key, language
         )
         vacancies_found = vacancies_descriptions[0]["total"]
